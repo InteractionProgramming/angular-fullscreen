@@ -5,15 +5,12 @@
       module.factory('Fullscreen', ['$document', '$rootScope', function ($document,$rootScope) {
          var document = $document[0];
 
-         // ensure ALLOW_KEYBOARD_INPUT is available and enabled
-         var isKeyboardAvailbleOnFullScreen = (typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element) && Element.ALLOW_KEYBOARD_INPUT;
-
          var emitter = $rootScope.$new();
 
          // listen event on document instead of element to avoid firefox limitation
          // see https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Using_full_screen_mode
-         $document.on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(){
-            emitter.$emit('FBFullscreen.change', serviceInstance.isEnabled());
+         $document.on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(event){
+            emitter.$emit('FBFullscreen.change', serviceInstance.isEnabled(), event, serviceInstance);
          });
 
          var serviceInstance = {
@@ -33,7 +30,7 @@
                   if (/Version\/[\d]{1,2}(\.[\d]{1,2}){1}(\.(\d){1,2}){0,1} Safari/.test(navigator.userAgent)) {
                      element.webkitRequestFullscreen();
                   } else {
-                     element.webkitRequestFullscreen(isKeyboardAvailbleOnFullScreen);
+                     element.webkitRequestFullscreen();
                   }
                } else if (element.msRequestFullscreen) {
                   element.msRequestFullscreen();
@@ -55,12 +52,12 @@
                return fullscreenElement ? true : false;
             },
             toggleAll: function(){
-                serviceInstance.isEnabled() ? serviceInstance.cancel() : serviceInstance.all();
+               serviceInstance.isEnabled() ? serviceInstance.cancel() : serviceInstance.all();
             },
             isSupported: function(){
-                var docElm = document.documentElement;
-                var requestFullscreen = docElm.requestFullScreen || docElm.mozRequestFullScreen || docElm.webkitRequestFullscreen || docElm.msRequestFullscreen;
-                return requestFullscreen ? true : false;
+               var docElm = document.documentElement;
+               var requestFullscreen = docElm.requestFullScreen || docElm.mozRequestFullScreen || docElm.webkitRequestFullscreen || docElm.msRequestFullscreen;
+               return requestFullscreen ? true : false;
             }
          };
 
@@ -115,8 +112,6 @@
 
    if (typeof define === "function" && define.amd) {
       define("FBAngular", ['angular'], function (angular) { return createModule(angular); } );
-   } else if (typeof module !== 'undefined' && module.exports) {
-      module.exports = createModule(window.angular).name;
    } else {
       createModule(window.angular);
    }
