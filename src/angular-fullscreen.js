@@ -22,7 +22,9 @@
                serviceInstance.enable( document.documentElement );
             },
             enable: function(element) {
-               if(element.requestFullScreen) {
+               if(element.requestFullscreen) {
+                  element.requestFullscreen();
+               } else if(element.requestFullScreen) {
                   element.requestFullScreen();
                } else if(element.mozRequestFullScreen) {
                   element.mozRequestFullScreen();
